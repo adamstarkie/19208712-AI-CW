@@ -11,6 +11,7 @@ import taxi
 import dispatcher
 
 # create objects for RoboUber
+print("test")
 
 # TODO
 # experiment with parameter settings. worldX and worldY should not need to be
