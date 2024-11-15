@@ -173,7 +173,7 @@ class Taxi:
       def clockTick(self, world):
           # automatically go off duty if we have absorbed as much loss as we can in a day
           if self._account <= 0 and self._passenger is None:
-             print("Taxi {0} is going off-duty".format(self.number))
+             print("Taxi {0} is going off-duty at Time={1}".format(self.number, self._world.simTime))
              self.onDuty = False
              self._offDutyTime = self._world.simTime
           # have we reached our last known destination? Decide what to do now.

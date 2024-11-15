@@ -153,6 +153,7 @@ class Dispatcher:
           # don't take payments from dodgy alternative universes
           if self._parent == parent:
              self._revenue += amount
+          print("Fare Completed! The total revenue of the system is now", self._revenue*10)
 
       #________________________________________________________________________________________________________________
 

@@ -548,6 +548,8 @@ class NetWorld:
       def completeFare(self, fare):
           self._dispatcher.recvPayment(self,fare.price*0.1)
           fare.taxi.recvMsg(fare.taxi.FARE_PAY, **{'amount': fare.price*0.9})
+          print("Time of fare completion =", self._time)
+          print("Taxi {0} gets: {1}, Dispatcher gets: {2}.".format(fare.taxi.number, fare.price*0.9, fare.price*0.1))
           # get rid of the fare's taxi allocation so that garbage collection doesn't have to worry
           # about back pointers. The taxi itself should already have got rid of the fare in the
           # completeFare call.
@@ -568,7 +570,7 @@ class NetWorld:
              outputs = {}
           ticksRun = 0
           while (ticks == 0 or ticksRun < ticks) and (self.runTime == 0 or self._time < self.runTime):
-                print("Current time in the simulation world: {0}".format(self._time))
+                # print("Current time in the simulation world: {0}".format(self._time))
                 if 'time' in outputs:
                    outputs['time'].append(self._time)
                 # really simple recording of fares: just where there are fares still waiting. More

@@ -299,7 +299,7 @@ while curTime < runTime:
       except StopIteration:
           pygame.event.get()
           if 'time' in outputValues and len(outputValues['time']) > 0 and curTime != outputValues['time'][-1]:
-             print("curTime: {0}, world.time: {1}".format(curTime,outputValues['time'][-1]))
+             # print("curTime: {0}, world.time: {1}".format(curTime,outputValues['time'][-1]))
 
              # naive: redraw the entire map each time step. This could be improved by saving a list of squares
              # to redraw and being incremental, but there is a fair amount of bookkeeping involved.
