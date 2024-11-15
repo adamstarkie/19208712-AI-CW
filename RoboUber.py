@@ -11,7 +11,6 @@ import taxi
 import dispatcher
 
 # create objects for RoboUber
-print("test")
 
 # TODO
 # experiment with parameter settings. worldX and worldY should not need to be
@@ -190,7 +189,7 @@ def runRoboUber(worldX,worldY,runTime,stop,junctions=None,streets=None,interpola
             svcArea.runWorld(ticks=1, outputs=outputValues)
             if threadTime != svcArea.simTime:
                threadTime += 1
-            time.sleep(1)
+            time.sleep(0.05)
 
 # event to manage a user exit, invoked by pressing 'q' on the keyboard
 userExit = threading.Event()

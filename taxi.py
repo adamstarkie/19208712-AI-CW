@@ -363,8 +363,34 @@ class Taxi:
                     return path
           # didn't reach the destination from any reachable node
           # no need, therefore, to expand the path for the higher-level call, this is a dead end.
-          return [] 
-                
+          return []
+
+      def _AStarPath(self, origin, destination, **args):
+
+          if origin not in self._map:
+              return None
+
+          if 'explored' not in args:
+             args['explored'] = {}  # initialise list of explored nodes
+
+          if origin == destination:
+             return [origin]
+
+          args['explored'][origin] = None  # add the origin to the explored list
+
+          expanded = {self._world.distance2node(origin, destination): {origin: [origin]}}
+          # expanded is the list of nodes to be explored, straight line distance as a heuristic
+
+          while len(expanded) > 0:
+              bestPath = min(expanded.keys())
+              nextExpansion = expanded[bestPath]
+              if destination in nextExpansion:
+                  return nextExpansion[destination]
+              nextNode = nextExpansion.popitem()
+
+
+          return []
+
       # TODO
       # this function decides whether to offer a bid for a fare. In general you can consider your current position, time,
       # financial state, the collection and dropoff points, the time the fare called - or indeed any other variable that
