@@ -332,7 +332,7 @@ class Taxi:
       # this function should build your route and fill the _path list for each new
       # journey. Below is a naive depth-first search implementation. You should be able
       # to do much better than this!
-      def _planPath(self, origin, destination, **args):
+      def _planPathOriginal(self, origin, destination, **args):
           # the list of explored paths. Recursive invocations pass in explored as a parameter
           if 'explored' not in args:
              args['explored'] = {}
@@ -365,7 +365,7 @@ class Taxi:
           # no need, therefore, to expand the path for the higher-level call, this is a dead end.
           return []
 
-      def _AStarPath(self, origin, destination, **args):
+      def _planPath(self, origin, destination, **args):
 
           if origin not in self._map:
               return None
@@ -378,16 +378,31 @@ class Taxi:
 
           args['explored'][origin] = None  # add the origin to the explored list
 
-          expanded = {self._world.distance2node(origin, destination): {origin: [origin]}}
-          # expanded is the list of nodes to be explored, straight line distance as a heuristic
+          unexplored = {self._world.distance2node(origin, destination): {origin: [origin]}}
+          # unexplored is the list of nodes to be explored, straight line distance as a heuristic
 
-          while len(expanded) > 0:
-              bestPath = min(expanded.keys())
-              nextExpansion = expanded[bestPath]
+          while len(unexplored) > 0:
+              bestPath = min(unexplored.keys())
+              nextExpansion = unexplored[bestPath]
               if destination in nextExpansion:
                   return nextExpansion[destination]
               nextNode = nextExpansion.popitem()
 
+              while len(nextExpansion) > 0 and nextNode[0] in args['explored']:
+                  nextNode = nextExpansion.popitem()
+              if len(nextExpansion) == 0:
+                  del unexplored[bestPath]
+              if nextNode[0] not in args['explored']:
+                  args['explored'].add(nextNode[0])
+                  expansionTargets = [node for node in self._map[nextNode[0]].items() if node[0] not in args['explored']]
+                  while len(expansionTargets) > 0:
+                      expTgt = expansionTargets.pop()
+                      estimatedDistance = (bestPath - self._world.distance2node(nextNode[0], destination) +
+                                           expTgt[1] + self._world.distance2node(expTgt[0], destination))
+                      if estimatedDistance in unexplored:
+                          unexplored[estimatedDistance][expTgt[0]] = nextNode[1] + [expTgt[0]]
+                      else:
+                          unexplored[estimatedDistance] = {expTgt[0]: nextNode[1] + [expTgt[0]]}
 
           return []
 
