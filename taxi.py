@@ -379,11 +379,9 @@ class Taxi:
           # unexplored is the list of nodes to be explored, straight line distance as a heuristic
 
           while len(unexplored) > 0:
-              #print("Explored:", explored)
               bestPath = min(unexplored.keys())
               nextExpansion = unexplored[bestPath]
               if destination in nextExpansion:
-                  #print(nextExpansion[destination])
                   return nextExpansion[destination]
               nextNode = nextExpansion.popitem()
 
@@ -393,16 +391,9 @@ class Taxi:
                   del unexplored[bestPath]
               if nextNode[0] not in explored:
                   explored.add(nextNode[0])
-                  #print(nextNode[0], "added to explored. Now:", explored)
                   expansionTargets = [node for node in self._map[nextNode[0]].items() if node[0] not in explored]
                   while len(expansionTargets) > 0:
-                      #print("Targets:", expansionTargets)
                       expTgt = expansionTargets.pop()
-                      #print("1: ", bestPath)
-                      #print("2: ", heuristic(nextNode[0], destination))
-                      #print("3: ", expTgt[1])
-                      #print("3.1: ", expTgt)
-                      #print("4: ", heuristic(expTgt[0], destination))
                       estimatedDistance = bestPath - heuristic(nextNode[0], destination) + expTgt[0][1] + heuristic(expTgt[0], destination)
                       if estimatedDistance in unexplored:
                           unexplored[estimatedDistance][expTgt[0]] = nextNode[1] + [expTgt[0]]
