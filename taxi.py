@@ -365,40 +365,45 @@ class Taxi:
           # no need, therefore, to expand the path for the higher-level call, this is a dead end.
           return []
 
-      def _planPath(self, origin, destination, **args):
+      def _planPath(self, origin, destination):
 
           if origin not in self._map:
               return None
 
-          if 'explored' not in args:
-             args['explored'] = {}  # initialise list of explored nodes
-
           if origin == destination:
              return [origin]
 
-          args['explored'][origin] = None  # add the origin to the explored list
-
-          unexplored = {self._world.distance2node(origin, destination): {origin: [origin]}}
+          heuristic = lambda x, y: math.sqrt((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2)
+          explored = set()
+          unexplored = {heuristic(origin, destination): {origin: [origin]}}
           # unexplored is the list of nodes to be explored, straight line distance as a heuristic
 
           while len(unexplored) > 0:
+              #print("Explored:", explored)
               bestPath = min(unexplored.keys())
               nextExpansion = unexplored[bestPath]
               if destination in nextExpansion:
+                  #print(nextExpansion[destination])
                   return nextExpansion[destination]
               nextNode = nextExpansion.popitem()
 
-              while len(nextExpansion) > 0 and nextNode[0] in args['explored']:
+              while len(nextExpansion) > 0 and nextNode[0] in explored:
                   nextNode = nextExpansion.popitem()
               if len(nextExpansion) == 0:
                   del unexplored[bestPath]
-              if nextNode[0] not in args['explored']:
-                  args['explored'].add(nextNode[0])
-                  expansionTargets = [node for node in self._map[nextNode[0]].items() if node[0] not in args['explored']]
+              if nextNode[0] not in explored:
+                  explored.add(nextNode[0])
+                  #print(nextNode[0], "added to explored. Now:", explored)
+                  expansionTargets = [node for node in self._map[nextNode[0]].items() if node[0] not in explored]
                   while len(expansionTargets) > 0:
+                      #print("Targets:", expansionTargets)
                       expTgt = expansionTargets.pop()
-                      estimatedDistance = (bestPath - self._world.distance2node(nextNode[0], destination) +
-                                           expTgt[1] + self._world.distance2node(expTgt[0], destination))
+                      #print("1: ", bestPath)
+                      #print("2: ", heuristic(nextNode[0], destination))
+                      #print("3: ", expTgt[1])
+                      #print("3.1: ", expTgt)
+                      #print("4: ", heuristic(expTgt[0], destination))
+                      estimatedDistance = bestPath - heuristic(nextNode[0], destination) + expTgt[0][1] + heuristic(expTgt[0], destination)
                       if estimatedDistance in unexplored:
                           unexplored[estimatedDistance][expTgt[0]] = nextNode[1] + [expTgt[0]]
                       else:

@@ -419,7 +419,7 @@ class NetWorld:
           # give an invalid distance if the nodes were invalid
           if origin is None or destination is None:
              return -1
-          return math.sqrt((destination.index[0]-origin.index[0])**2+(destination.index[1]-origin.index[1])**2)
+          return math.sqrt(((destination.index[0]-origin.index[0])**2)+((destination.index[1]-origin.index[1])**2))
 
       #_____________________________________________________________________________________________________________
       # methods called by world's members to execute coordinated actions
