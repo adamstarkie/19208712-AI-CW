@@ -189,7 +189,7 @@ def runRoboUber(worldX,worldY,runTime,stop,junctions=None,streets=None,interpola
             svcArea.runWorld(ticks=1, outputs=outputValues)
             if threadTime != svcArea.simTime:
                threadTime += 1
-            time.sleep(0.05)
+            time.sleep(0.02)
 
 # event to manage a user exit, invoked by pressing 'q' on the keyboard
 userExit = threading.Event()

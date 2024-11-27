@@ -205,7 +205,7 @@ class Dispatcher:
       # scheme: taxis can (and do!) get starved for fares, simply because they happen to be far away from the
       # action. You should be able to do better than this. After balancing allocations, try to optimise which
       # fares are allocated to which taxi (or indeed to any taxi at all!)
-      def _allocateFare(self, origin, destination, time):
+      def _allocateFareOriginal(self, origin, destination, time):
            # a very simple approach here gives taxis at most 5 ticks to respond, which can
            # surely be improved upon.
           if self._parent.simTime-time > 5:
@@ -223,8 +223,6 @@ class Dispatcher:
                        bidderLoc = self._taxis[taxiIdx].currentLocation
                        bidderNode = self._parent.getNode(bidderLoc[0],bidderLoc[1])
                        if bidderNode is not None:
-                          # ultimately the naive algorithm chosen is which taxi is the closest. This is patently unfair for several
-                          # reasons, but does produce *a* winner.
                           if winnerNode is None or self._parent.distance2Node(bidderNode,fareNode) < self._parent.distance2Node(winnerNode,fareNode):
                              allocatedTaxi = taxiIdx
                              winnerNode = bidderNode
@@ -235,4 +233,51 @@ class Dispatcher:
                                 # but if so, allocate the taxi.
                                 self._fareBoard[origin][destination][time].taxi = allocatedTaxi     
                                 self._parent.allocateFare(origin,self._taxis[allocatedTaxi])
-     
+
+      def _allocateFare(self, origin, destination, time):
+          if self._parent.simTime-time > 5:
+             allocatedTaxi = -1
+             winnerNode = None
+             fareNode = self._parent.getNode(origin[0], origin[1])
+
+             mostVotes = -1
+
+             leastMoney = 99999999999
+             #closestDistance = -1
+             closestNode = None
+             #closestTaxi = -1
+             if fareNode is not None:
+                for taxiIdx in self._fareBoard[origin][destination][time].bidders:
+                    votesForThisTaxi = 0
+                    if len(self._taxis) > taxiIdx:
+                       bidderLoc = self._taxis[taxiIdx].currentLocation
+                       bidderMoney = self._taxis[taxiIdx].account
+                       bidderNode = self._parent.getNode(bidderLoc[0],bidderLoc[1])
+                       if bidderNode is not None:
+
+
+                          # least money
+                          if bidderMoney < leastMoney:
+                              votesForThisTaxi += 0
+                              leastMoney = bidderMoney
+
+                          if bidderMoney < 120:
+                              votesForThisTaxi += 0
+
+                          # closest taxi
+                          if closestNode is None or self._parent.distance2Node(bidderNode,fareNode) < self._parent.distance2Node(closestNode,fareNode):
+                              votesForThisTaxi += 10
+                              closestNode = bidderNode
+
+                          #print("Votes for taxi", taxiIdx, "=", votesForThisTaxi)
+
+                          if winnerNode is None or votesForThisTaxi > mostVotes:
+                             allocatedTaxi = taxiIdx
+                             winnerNode = bidderNode
+                             #print("Allocated taxi has changed to", allocatedTaxi)
+                             mostVotes = votesForThisTaxi
+                          else:
+                             if allocatedTaxi >= 0:
+                                # allocate the taxi
+                                self._fareBoard[origin][destination][time].taxi = allocatedTaxi
+                                self._parent.allocateFare(origin,self._taxis[allocatedTaxi])

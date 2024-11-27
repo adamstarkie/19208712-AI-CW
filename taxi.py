@@ -113,6 +113,10 @@ class Taxi:
              return (-1,-1)
           return self._loc.index
 
+      @property
+      def account(self):
+          return self._account
+
       #___________________________________________________________________________________________________________________________
       # methods to populate the taxi's knowledge base
 
@@ -328,10 +332,6 @@ class Taxi:
       ''' HERE IS THE PART THAT YOU NEED TO MODIFY
       '''
 
-      # TODO
-      # this function should build your route and fill the _path list for each new
-      # journey. Below is a naive depth-first search implementation. You should be able
-      # to do much better than this!
       def _planPathOriginal(self, origin, destination, **args):
           # the list of explored paths. Recursive invocations pass in explored as a parameter
           if 'explored' not in args:
