@@ -240,12 +240,11 @@ class Dispatcher:
              winnerNode = None
              fareNode = self._parent.getNode(origin[0], origin[1])
 
-             mostVotes = -1
+             mostVotes = 0
 
              leastMoney = 99999999999
-             #closestDistance = -1
+             #closestDistance = 99999999999
              closestNode = None
-             #closestTaxi = -1
              if fareNode is not None:
                 for taxiIdx in self._fareBoard[origin][destination][time].bidders:
                     votesForThisTaxi = 0
@@ -258,26 +257,25 @@ class Dispatcher:
 
                           # least money
                           if bidderMoney < leastMoney:
-                              votesForThisTaxi += 0
+                              votesForThisTaxi += 5
                               leastMoney = bidderMoney
 
                           if bidderMoney < 120:
-                              votesForThisTaxi += 0
+                              votesForThisTaxi += 10
 
                           # closest taxi
                           if closestNode is None or self._parent.distance2Node(bidderNode,fareNode) < self._parent.distance2Node(closestNode,fareNode):
                               votesForThisTaxi += 10
                               closestNode = bidderNode
 
-                          #print("Votes for taxi", taxiIdx, "=", votesForThisTaxi)
+                          #print("Most votes: ", mostVotes, " Votes for this taxi: ", votesForThisTaxi)
 
-                          if winnerNode is None or votesForThisTaxi > mostVotes:
+                          if votesForThisTaxi > mostVotes:
                              allocatedTaxi = taxiIdx
-                             winnerNode = bidderNode
                              #print("Allocated taxi has changed to", allocatedTaxi)
                              mostVotes = votesForThisTaxi
-                          else:
-                             if allocatedTaxi >= 0:
-                                # allocate the taxi
-                                self._fareBoard[origin][destination][time].taxi = allocatedTaxi
-                                self._parent.allocateFare(origin,self._taxis[allocatedTaxi])
+
+                if allocatedTaxi >= 0:
+                    # allocate the taxi
+                    self._fareBoard[origin][destination][time].taxi = allocatedTaxi
+                    self._parent.allocateFare(origin,self._taxis[allocatedTaxi])
