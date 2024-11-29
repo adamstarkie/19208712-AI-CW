@@ -21,7 +21,7 @@ worldY = 50
 runTime = 1440
 # you can change the DisplaySize to be bigger if you want larger-size objects on-screen
 displaySize = (1024,768)
-trafficOn = False
+trafficOn = True
 
 # play around with these parameters if you want, to see how they affect the results.
 # (but keep the original settings so you can return to something more-or-less 'sensible)
@@ -47,7 +47,7 @@ trafficSinkDrain = 4 if trafficOn else 0
 
 # some nodes - this can be automated
 jct0 = networld.junctionDef(x=0, y=0, cap=2, canStop=True, src=trafficSrcMinor, sink=trafficSinkMinor)
-jct1 = networld.junctionDef(x=20, y=0, cap=2, canStop=True, src=trafficSrcSignificant, sink=trafficSinkMinor)
+jct1 = networld.junctionDef(x=20, y=0, cap=2, canStop=True, src=trafficSrcMinor, sink=trafficSinkMinor)
 jct2 = networld.junctionDef(x=40, y=0, cap=2, canStop=True, src=trafficSrcMajor, sink=trafficSinkMajor)
 jct3 = networld.junctionDef(x=49, y=0, cap=2, canStop=True, src=trafficSrcMinor, sink=trafficSinkMinor)
 jct4 = networld.junctionDef(x=0, y=10, cap=2, canStop=True, src=trafficSrcSignificant, sink=trafficSinkMinor)

@@ -192,13 +192,25 @@ class Dispatcher:
          take into account other details.
       '''
       # TODO - improve costing
-      def _costFare(self, fare):
+      def _costFareOriginal(self, fare):
           timeToDestination = self._parent.travelTime(self._parent.getNode(fare.origin[0],fare.origin[1]),
                                                       self._parent.getNode(fare.destination[0],fare.destination[1]))
           # if the world is gridlocked, a flat fare applies.
           if timeToDestination < 0:
              return 150
           return (25+timeToDestination)/0.9
+
+      def _costFare(self, fare):
+          timeToDestination = self._parent.travelTime(self._parent.getNode(fare.origin[0],fare.origin[1]),
+                                                      self._parent.getNode(fare.destination[0],fare.destination[1]))
+          # if the world is gridlocked, a flat fare applies.
+          if timeToDestination < 0:
+             return 150
+
+          trafficPenalty = self._taxis[0]._trafficTime(fare.origin, fare.destination) / 10
+          profitMargin = 1.2
+          return (25 + timeToDestination + trafficPenalty)/0.9 * profitMargin
+
 
       # TODO
       # this method decides which taxi to allocate to a given fare. The algorithm here is not a fair allocation

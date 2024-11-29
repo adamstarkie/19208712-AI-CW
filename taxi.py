@@ -411,9 +411,16 @@ class Taxi:
       def _bidOnFare(self, time, origin, destination, price):
           NoCurrentPassengers = self._passenger is None
           NoAllocatedFares = len([fare for fare in self._availableFares.values() if fare.allocated]) == 0
+
+          TrafficSafety = 1 + (self._trafficTime(origin, destination) / 10)
+
           TimeToOrigin = self._world.travelTime(self._loc, self._world.getNode(origin[0], origin[1]))
           TimeToDestination = self._world.travelTime(self._world.getNode(origin[0], origin[1]),
                                                      self._world.getNode(destination[1], destination[1]))
+
+          TrafficToOrigin = TimeToOrigin * TrafficSafety
+          TrafficToDestination = TimeToDestination * TrafficSafety
+
           FiniteTimeToOrigin = TimeToOrigin > 0
           FiniteTimeToDestination = TimeToDestination > 0
           CanAffordToDrive = self._account > TimeToOrigin
@@ -430,5 +437,11 @@ class Taxi:
           return Bid
 
 
-
+      def _trafficTime(self, origin, destination):
+          path = self._planPath(origin, destination)
+          addedTime = 0
+          for eachNode in path:
+              loc = self._world.getNode(eachNode[0], eachNode[1])
+              addedTime += loc._traffic
+          return addedTime
 
