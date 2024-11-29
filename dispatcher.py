@@ -124,7 +124,7 @@ class Dispatcher:
              if destination in self._fareBoard[origin]:
                 if calltime in self._fareBoard[origin][destination]:
                    # get rid of it
-                   print("Fare ({0},{1}) cancelled".format(origin[0],origin[1]))
+                   #print("Fare ({0},{1}) cancelled".format(origin[0],origin[1]))
                    # inform taxis that the fare abandoned
                    self._parent.cancelFare(origin, self._taxis[self._fareBoard[origin][destination][calltime].taxi])
                    del self._fareBoard[origin][destination][calltime]
@@ -257,25 +257,29 @@ class Dispatcher:
 
                           # least money
                           if bidderMoney < leastMoney:
-                              votesForThisTaxi += 5
+                              votesForThisTaxi += 1
                               leastMoney = bidderMoney
 
-                          if bidderMoney < 120:
-                              votesForThisTaxi += 10
+                          # critical money
+                          if bidderMoney < 180:
+                              print("Taxi", taxiIdx, "is critical")
+                              votesForThisTaxi += 1
 
                           # closest taxi
-                          if closestNode is None or self._parent.distance2Node(bidderNode,fareNode) < self._parent.distance2Node(closestNode,fareNode):
-                              votesForThisTaxi += 10
+                          if closestNode is None or self._parent.travelTime(bidderNode,fareNode) < self._parent.travelTime(closestNode,fareNode):
+                              votesForThisTaxi += 1
                               closestNode = bidderNode
 
                           #print("Most votes: ", mostVotes, " Votes for this taxi: ", votesForThisTaxi)
 
+                          # check here if the taxi can reasonably deliver the fare on time
+
                           if votesForThisTaxi > mostVotes:
                              allocatedTaxi = taxiIdx
-                             #print("Allocated taxi has changed to", allocatedTaxi)
                              mostVotes = votesForThisTaxi
 
                 if allocatedTaxi >= 0:
                     # allocate the taxi
+                    print("Taxi", allocatedTaxi, "has been allocated a fare.")
                     self._fareBoard[origin][destination][time].taxi = allocatedTaxi
                     self._parent.allocateFare(origin,self._taxis[allocatedTaxi])
