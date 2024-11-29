@@ -124,7 +124,7 @@ class Dispatcher:
              if destination in self._fareBoard[origin]:
                 if calltime in self._fareBoard[origin][destination]:
                    # get rid of it
-                   #print("Fare ({0},{1}) cancelled".format(origin[0],origin[1]))
+                   print("Fare ({0},{1}) cancelled".format(origin[0],origin[1]))
                    # inform taxis that the fare abandoned
                    self._parent.cancelFare(origin, self._taxis[self._fareBoard[origin][destination][calltime].taxi])
                    del self._fareBoard[origin][destination][calltime]
@@ -237,14 +237,12 @@ class Dispatcher:
       def _allocateFare(self, origin, destination, time):
           if self._parent.simTime-time > 5:
              allocatedTaxi = -1
-             winnerNode = None
              fareNode = self._parent.getNode(origin[0], origin[1])
-
+             fareDestinationNode = self._parent.getNode(destination[0], destination[1])
              mostVotes = 0
+             leastMoney = float('inf')
+             shortestJourney = float('inf')
 
-             leastMoney = 99999999999
-             #closestDistance = 99999999999
-             closestNode = None
              if fareNode is not None:
                 for taxiIdx in self._fareBoard[origin][destination][time].bidders:
                     votesForThisTaxi = 0
@@ -254,32 +252,29 @@ class Dispatcher:
                        bidderNode = self._parent.getNode(bidderLoc[0],bidderLoc[1])
                        if bidderNode is not None:
 
-
                           # least money
                           if bidderMoney < leastMoney:
                               votesForThisTaxi += 1
                               leastMoney = bidderMoney
 
                           # critical money
-                          if bidderMoney < 180:
-                              print("Taxi", taxiIdx, "is critical")
-                              votesForThisTaxi += 1
+                          if bidderMoney < 120:
+                              votesForThisTaxi += 2
 
                           # closest taxi
-                          if closestNode is None or self._parent.travelTime(bidderNode,fareNode) < self._parent.travelTime(closestNode,fareNode):
-                              votesForThisTaxi += 1
-                              closestNode = bidderNode
+                          timeToFare = self._parent.travelTime(bidderNode, fareNode)
+                          timeToDestination = self._parent.travelTime(fareNode, fareDestinationNode)
+                          if (timeToFare + timeToDestination) < shortestJourney:
+                              votesForThisTaxi += 2
+                              shortestJourney = (timeToFare + timeToDestination)
 
-                          #print("Most votes: ", mostVotes, " Votes for this taxi: ", votesForThisTaxi)
 
-                          # check here if the taxi can reasonably deliver the fare on time
-
-                          if votesForThisTaxi > mostVotes:
+                          if (votesForThisTaxi > mostVotes and self._taxis[taxiIdx].onDuty and
+                                  self._taxis[taxiIdx].account > shortestJourney):
                              allocatedTaxi = taxiIdx
                              mostVotes = votesForThisTaxi
 
                 if allocatedTaxi >= 0:
                     # allocate the taxi
-                    print("Taxi", allocatedTaxi, "has been allocated a fare.")
                     self._fareBoard[origin][destination][time].taxi = allocatedTaxi
                     self._parent.allocateFare(origin,self._taxis[allocatedTaxi])
