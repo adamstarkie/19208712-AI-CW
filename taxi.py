@@ -423,16 +423,33 @@ class Taxi:
 
           FiniteTimeToOrigin = TimeToOrigin > 0
           FiniteTimeToDestination = TimeToDestination > 0
-          CanAffordToDrive = self._account > TimeToOrigin
+
+          EnoughTimeToReachFare = self._maxFareWait - self._world.simTime + time > TrafficSafety
+
+          ExpiryTime = self._maxFareWait - (self._world.simTime - time)
+
+          if ExpiryTime > TrafficToOrigin:
+            ProbabilityOnTime = math.exp(-TrafficToOrigin / ExpiryTime)
+            ProbabilityOnTime = max(0.0, min(ProbabilityOnTime, 1.0))
+          else:
+            ProbabilityOnTime = 0.0
+
+          ExpectedProfit = price - (TrafficToOrigin + TrafficToDestination)
+          ExpectedReturn = ExpectedProfit * ProbabilityOnTime
+
+          MinimumReturn = 4  # testing
+
+          MakesAProfit = ExpectedReturn > MinimumReturn
+
+          CanAffordToDrive = self._account > TrafficToOrigin
           FairPriceToDestination = price > TimeToDestination
           PriceBetterThanCost = FairPriceToDestination and FiniteTimeToDestination
           FareExpiryInFuture = self._maxFareWait > self._world.simTime-time
-          EnoughTimeToReachFare = self._maxFareWait-self._world.simTime+time > TimeToOrigin
           SufficientDrivingTime = FiniteTimeToOrigin and EnoughTimeToReachFare 
           WillArriveOnTime = FareExpiryInFuture and SufficientDrivingTime
           NotCurrentlyBooked = NoCurrentPassengers and NoAllocatedFares
           CloseEnough = CanAffordToDrive and WillArriveOnTime
-          Worthwhile = PriceBetterThanCost and NotCurrentlyBooked 
+          Worthwhile = PriceBetterThanCost and NotCurrentlyBooked and MakesAProfit
           Bid = CloseEnough and Worthwhile
           return Bid
 
